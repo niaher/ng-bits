@@ -1,4 +1,4 @@
-﻿angular.module("ngBits.Controllers")
+﻿angular.module("ngBits.controllers", [])
 	.factory("makeItemController", ["_", "$log", function (_, $log) {
 		function getEventName(namespace, eventName) {
 			return (namespace.length > 0 ? namespace + ":" : "") + eventName;
