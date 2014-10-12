@@ -193,7 +193,7 @@
 							$scope.items = data.results;
 							$scope.reading = false;
 
-							$scope.$apply(function () {
+							$scope.$evalAsync(function () {
 								routeParameters.set({ page: page, q: $scope.query.search, s: $scope.query.pageSize });
 								$scope.totalItems = data.inlineCount;
 							});
