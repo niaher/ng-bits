@@ -140,7 +140,7 @@
 			var routeParameters = getRouteParameterStore(options.useLocation);
 
 			$scope.query = {
-				pageSize: parseInt(routeParameters.get("s"), 10) || 10,
+				pageSize: parseInt(routeParameters.get("s"), 10) || options.pageSize || 10,
 				search: routeParameters.get("q") || ""
 			};
 
