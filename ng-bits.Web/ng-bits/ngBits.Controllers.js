@@ -162,6 +162,15 @@
 				}
 			});
 
+			function render(items, inlineCount, page) {
+				$scope.$evalAsync(function () {
+					$scope.items = items;
+					routeParameters.set({ page: page, q: $scope.query.search, s: $scope.query.pageSize });
+					$scope.totalItems = inlineCount;
+					$scope.reading = false;
+				});
+			}
+
 			$scope.reading = false;
 
 			$scope.read = function (page) {
@@ -174,30 +183,25 @@
 
 					$scope.pagination.currentPage = page;
 
-					var query = dataContext.query(options.entitySet)
-						.orderBy(options.orderBy)
-						.skip((page - 1) * parseInt($scope.query.pageSize, 10))
-						.take(parseInt($scope.query.pageSize, 10))
-						.inlineCount(true);
-
-					if (options.adjustQuery) {
-						query = options.adjustQuery(query);
-					}
-
-					if ($scope.query.search.length) {
-						query = query.where(options.searchProperty, "contains", $scope.query.search);
-					}
-
-					query.execute()
-						.then(function (data) {
-							$scope.items = data.results;
-							$scope.reading = false;
-
-							$scope.$evalAsync(function () {
-								routeParameters.set({ page: page, q: $scope.query.search, s: $scope.query.pageSize });
-								$scope.totalItems = data.inlineCount;
-							});
+					if ($scope.query.search.length && options.search) {
+						options.search($scope.query.search, page, function (data) {
+							render(data.results, data.inlineCount, page);
 						});
+					} else {
+						var query = dataContext.query(options.entitySet)
+							.orderBy(options.orderBy)
+							.skip((page - 1) * parseInt($scope.query.pageSize, 10))
+							.take(parseInt($scope.query.pageSize, 10))
+							.inlineCount(true);
+
+						if (options.adjustQuery) {
+							query = options.adjustQuery(query);
+						}
+
+						query.execute().then(function (data) {
+							render(data.results, data.inlineCount, page);
+						});
+					}
 				}
 			};
 
