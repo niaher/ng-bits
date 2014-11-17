@@ -1,4 +1,4 @@
-﻿angular.module("ngBits.form")
+﻿angular.module("ngBits.form", [])
 	.directive("formRow", [function () {
 		return {
 			restrict: "E",
