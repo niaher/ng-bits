@@ -4,7 +4,7 @@
 			restrict: "E",
 			transclude: true,
 			replace: true,
-			templateUrl: "Templates/UNOPS.FormRow.html",
+			template: '<div class="form-group" ng-class="{\'has-error\':!isValid}"><label class="control-label col-lg-2 col-md-2 col-sm-3 col-xs-12">{{label}}</label><div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><div class=""><div ng-transclude></div><span ng-if="addon != undefined && addon.length" class="input-group-addon">{{addon}}</span></div></div></div>',
 			scope: true,
 			link: function ($scope, $element, $attrs) {
 				$scope.label = $attrs['label'];
