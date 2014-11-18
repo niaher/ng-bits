@@ -1,5 +1,5 @@
 ﻿angular.module("ngBits.forms", [])
-	.directive("formRow", [function () {
+	.directive("myFormRow", [function () {
 		return {
 			restrict: "E",
 			transclude: true,
@@ -47,7 +47,7 @@
 			require: "^formRow",
 			scope: true,
 			link: function ($scope, $element, $attrs, parentController) {
-				var modelPath = $attrs["formRowInput"] || $attrs["ngModel"];
+				var modelPath = $attrs["myFormRowInput"] || $attrs["ngModel"];
 				var path = parsePath(modelPath);
 
 				var entity = $scope.$eval(path.entityPath);
