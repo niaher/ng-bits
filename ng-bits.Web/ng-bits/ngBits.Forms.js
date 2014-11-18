@@ -1,18 +1,17 @@
 ﻿angular.module("ngBits.forms", [])
 	.directive("myFormRow", [function () {
 		return {
-			restrict: "E",
-			transclude: true,
-			replace: true,
-			template: '<div class="form-group" ng-class="{\'has-error\':!isValid}"><label class="control-label col-lg-2 col-md-2 col-sm-3 col-xs-12">{{label}}</label><div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><div class=""><div ng-transclude></div><span ng-if="addon != undefined && addon.length" class="input-group-addon">{{addon}}</span></div></div></div>',
+			restrict: "A",
 			scope: true,
-			link: function ($scope, $element, $attrs) {
-				$scope.label = $attrs['label'];
-				$scope.addon = $attrs['addon'];
-			},
-			controller: ["$scope", function ($scope) {
+			controller: ["$scope", "$element", function ($scope, $element) {
 				this.setValidity = function (isValid) {
 					$scope.isValid = isValid;
+
+					if (isValid) {
+						$element.removeClass("has-error");
+					} else {
+						$element.addClass("has-error");
+					}
 				};
 
 				// Pristine forms are valid.
@@ -20,7 +19,7 @@
 			}]
 		};
 	}])
-	.directive("formRowInput", [function () {
+	.directive("myFormRowInput", [function () {
 		function parsePath(path) {
 			var result = {};
 
@@ -44,7 +43,7 @@
 		}
 
 		return {
-			require: "^formRow",
+			require: "^myFormRow",
 			scope: true,
 			link: function ($scope, $element, $attrs, parentController) {
 				var modelPath = $attrs["myFormRowInput"] || $attrs["ngModel"];
