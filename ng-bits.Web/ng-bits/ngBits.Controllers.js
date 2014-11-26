@@ -1,5 +1,5 @@
 ﻿angular.module("ngBits.controllers", [])
-	.factory("makeItemController", ["_", "$log", function (_, $log) {
+	.factory("makeItemController", ["_", "$log", "$location", function (_, $log, $location) {
 		function getEventName(namespace, eventName) {
 			return (namespace.length > 0 ? namespace + ":" : "") + eventName;
 		}
@@ -26,7 +26,7 @@
 			}, userSettings);
 		}
 
-		return function ($scope, dataContext, item, $location, userSettings) {
+		return function ($scope, dataContext, item, userSettings) {
 			$scope.item = item;
 			$scope.mode = item.entityAspect.entityState.isAdded() ? "edit" : "read";
 
@@ -106,7 +106,6 @@
 		};
 	}])
 	.factory("makePagedController", ["$location", function ($location) {
-
 		function getRouteParameterStore(useLocation) {
 			if (useLocation || angular.isUndefined(useLocation)) {
 				return {
