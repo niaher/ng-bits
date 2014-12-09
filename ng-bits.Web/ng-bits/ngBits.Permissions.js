@@ -1,4 +1,4 @@
-angular.module("ngBits.PermissionManager", [])
+angular.module("ngBits.permissions", [])
 	.provider("permissions", function () {
 		var contextlessPermissions = [],
 			contextPermissions = [],
