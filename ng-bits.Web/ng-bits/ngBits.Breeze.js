@@ -10,24 +10,35 @@ angular.module("ngBits.breeze", ["breeze.angular"])
 			function context() {
 				this.manager = new breeze.EntityManager(url);
 
+				var readyDeferred = $q.defer();
+				this.whenReady = readyDeferred.promise;
+
 				var self = this;
 				this.manager.metadataStore.metadataFetched.subscribe(function () {
 					if (!metadataInitialized) {
 						metadataInitialized = true;
-						(initializer || window.angular.noop).call(self);
+						(initializer || window.angular.noop)(self);
+
+						readyDeferred.resolve();
 					}
 				});
 
-				var readyDeferred = $q.defer();
-				this.whenReady = readyDeferred.promise;
-
 				this.manager.fetchMetadata()
-					.then(function () {
-						readyDeferred.resolve();
-					})
 					.catch(function (error) {
 						readyDeferred.reject(error);
 					});
+
+				this.getPrimitives = function (obj) {
+					var result = {};
+					for (var name in obj) {
+						var propertyValue = obj[name];
+						if (obj.hasOwnProperty(name) && typeof (propertyValue) != "object") {
+							result[name] = propertyValue;
+						}
+					}
+
+					return result;
+				};
 			}
 
 			context.prototype.query = function (entitySet) {
