@@ -28,8 +28,13 @@ angular.module("ngBits.controllers", [])
 		function getEventName(namespace, eventName) {
 			return (namespace.length > 0 ? namespace + ":" : "") + eventName;
 		}
-		
+
 		function getSettings($scope, dataContext, item, userSettings) {
+			var crudFn = function (i, cb) {
+				$log.log(i);
+				cb();
+			};
+
 			return angular.extend({
 				eventNamespace: "",
 				exitUrl: "/",
@@ -39,15 +44,16 @@ angular.module("ngBits.controllers", [])
 				getName: function (i) {
 					return "item #" + i.Id;
 				},
-				"delete": function (i) {
-					i.entityAspect.setDeleted();
-				},
+				"delete": crudFn,
+				add: crudFn,
+				update: crudFn,
 				error: $log.error,
 				success: $log.log,
 				publish: $scope.$emit.bind($scope),
 				getDetailsUrl: function (i) {
 					return "/Details/" + i.Id;
-				}
+				},
+				keys: ["Id"]
 			}, userSettings);
 		}
 
@@ -80,9 +86,7 @@ angular.module("ngBits.controllers", [])
 				var sure = confirm("You are about to delete " + settings.getName(item) + ". This action is irreversable. Are you sure you want to proceed?");
 
 				if (sure) {
-					settings.delete(item);
-
-					dataContext.saveChanges().then(function () {
+					settings.delete(item._backingStore, function () {
 						var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":Deleted");
 						settings.publish(eventName, item);
 
@@ -98,6 +102,9 @@ angular.module("ngBits.controllers", [])
 			};
 
 			$scope.save = function () {
+				// Event for the input controls to listen to.
+				$scope.$broadcast("form:submit");
+
 				var validationErrors = item.entityAspect.getValidationErrors();
 
 				var change = item.entityAspect.entityState.name;
@@ -105,8 +112,10 @@ angular.module("ngBits.controllers", [])
 				if (validationErrors.length) {
 					settings.error(validationErrors[0].errorMessage);
 				} else {
-					dataContext.saveChanges().then(function () {
-						$scope.$evalAsync(function() {
+					var callback = function () {
+						$scope.$evalAsync(function () {
+							item.entityAspect.acceptChanges();
+
 							var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":" + change);
 
 							settings.publish(eventName, item);
@@ -118,8 +127,20 @@ angular.module("ngBits.controllers", [])
 								$scope.mode = "read";
 							}
 						});
-					});
+					};
 
+					if (change == "Added") {
+						settings.add(item._backingStore, function (result) {
+							for (var i = 0; i < settings.keys.length; ++i) {
+								var propertyName = settings.keys[i];
+								item[propertyName] = result[propertyName];
+							}
+
+							callback();
+						});
+					} else {
+						settings.update(item._backingStore, callback);
+					}
 				}
 			};
 
