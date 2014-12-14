@@ -1,9 +1,34 @@
-﻿angular.module("ngBits.controllers", [])
-	.factory("makeItemController", ["_", "$log", "$location", function (_, $log, $location) {
+if (!Function.prototype.bind) {
+	Function.prototype.bind = function (oThis) {
+		if (typeof this !== 'function') {
+			// closest thing possible to the ECMAScript 5
+			// internal IsCallable function
+			throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+		}
+
+		var aArgs = Array.prototype.slice.call(arguments, 1),
+			fToBind = this,
+			fNOP = function () { },
+			fBound = function () {
+				return fToBind.apply(this instanceof fNOP && oThis
+					   ? this
+					   : oThis,
+					   aArgs.concat(Array.prototype.slice.call(arguments)));
+			};
+
+		fNOP.prototype = this.prototype;
+		fBound.prototype = new fNOP();
+
+		return fBound;
+	};
+}
+
+angular.module("ngBits.controllers", [])
+	.factory("makeItemController", ["$log", "$location", function ($log, $location) {
 		function getEventName(namespace, eventName) {
 			return (namespace.length > 0 ? namespace + ":" : "") + eventName;
 		}
-
+		
 		function getSettings($scope, dataContext, item, userSettings) {
 			return angular.extend({
 				eventNamespace: "",
@@ -17,9 +42,9 @@
 				"delete": function (i) {
 					i.entityAspect.setDeleted();
 				},
-				error: _.bind($log.error, console),
-				success: _.bind($log.log, console),
-				publish: _.bind($scope.$emit, $scope),
+				error: $log.error,
+				success: $log.log,
+				publish: $scope.$emit.bind($scope),
 				getDetailsUrl: function (i) {
 					return "/Details/" + i.Id;
 				}
@@ -38,12 +63,12 @@
 				if (itemEntityState.isAdded() || itemEntityState.isDetached()) {
 					$location.path(settings.exitUrl);
 				} else {
-					dataContext.detachEntity(item);
+					dataContext.manager.detachEntity(item);
 
 					var query = settings.getQuery();
 
 					query.execute().then(function (data) {
-						$scope.$apply(function () {
+						$scope.$evalAsync(function () {
 							angular.extend(item, data.results[0]);
 							$scope.mode = "read";
 						});
@@ -61,7 +86,7 @@
 						var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":Deleted");
 						settings.publish(eventName, item);
 
-						$scope.$apply(function () {
+						$scope.$evalAsync(function () {
 							$location.path(settings.exitUrl);
 						});
 					});
@@ -81,18 +106,18 @@
 					settings.error(validationErrors[0].errorMessage);
 				} else {
 					dataContext.saveChanges().then(function () {
-						var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":" + change);
+						$scope.$evalAsync(function() {
+							var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":" + change);
 
-						settings.publish(eventName, item);
-						settings.success("Changes saved");
+							settings.publish(eventName, item);
+							settings.success("Changes saved");
 
-						if (change == "Added") {
-							$location.path(settings.getDetailsUrl(item));
-						} else {
-							$scope.mode = "read";
-						}
-
-						$scope.$apply();
+							if (change == "Added") {
+								$location.path(settings.getDetailsUrl(item));
+							} else {
+								$scope.mode = "read";
+							}
+						});
 					});
 
 				}
