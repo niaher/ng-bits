@@ -27,19 +27,38 @@ angular.module("ngBits.breeze", ["breeze.angular"])
 					.catch(function (error) {
 						readyDeferred.reject(error);
 					});
+			}
+			
+			context.prototype.getPrimitives = function (obj) {
+				var result = {};
+				for (var name in obj) {
+					var propertyValue = obj[name];
+					if (obj.hasOwnProperty(name) && typeof (propertyValue) != "object") {
+						result[name] = propertyValue;
+					}
+				}
 
-				this.getPrimitives = function (obj) {
-					var result = {};
-					for (var name in obj) {
-						var propertyValue = obj[name];
-						if (obj.hasOwnProperty(name) && typeof (propertyValue) != "object") {
-							result[name] = propertyValue;
-						}
+				return result;
+			};
+				
+			context.prototype.addUnmappedProperty = function (entityType, propertyName) {
+				this.manager.metadataStore.getEntityType(entityType).addProperty(new breeze.DataProperty({
+					name: propertyName,
+					nameOnServer: propertyName,
+					isUnmapped: true
+				}));
+			};
+
+			context.prototype.getLookupFn = function (property, enums) {
+				return function () {
+					var value = this[property];
+					if (value) {
+						return enums[value];
 					}
 
-					return result;
+					return null;
 				};
-			}
+			};
 
 			context.prototype.query = function (entitySet) {
 				return new breeze.EntityQuery(entitySet).using(this.manager);
