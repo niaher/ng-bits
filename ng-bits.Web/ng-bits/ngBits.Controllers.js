@@ -8,16 +8,16 @@ if (!Function.prototype.bind) {
 
 		var aArgs = Array.prototype.slice.call(arguments, 1),
 			fToBind = this,
-			fNOP = function () { },
+			noop = function () { },
 			fBound = function () {
-				return fToBind.apply(this instanceof fNOP && oThis
+				return fToBind.apply(this instanceof noop && oThis
 					   ? this
 					   : oThis,
 					   aArgs.concat(Array.prototype.slice.call(arguments)));
 			};
 
-		fNOP.prototype = this.prototype;
-		fBound.prototype = new fNOP();
+		noop.prototype = this.prototype;
+		fBound.prototype = new noop();
 
 		return fBound;
 	};
@@ -227,16 +227,17 @@ angular.module("ngBits.controllers", [])
 					}
 
 					$scope.pagination.currentPage = page;
+					var pageSize = parseInt($scope.query.pageSize, 10);
 
 					if ($scope.query.search.length && options.search) {
-						options.search($scope.query.search, page, function (data) {
+						options.search($scope.query.search, page, pageSize, function (data) {
 							render(data.results, data.inlineCount, page);
 						});
 					} else {
 						var query = dataContext.query(options.entitySet)
 							.orderBy(options.orderBy)
-							.skip((page - 1) * parseInt($scope.query.pageSize, 10))
-							.take(parseInt($scope.query.pageSize, 10))
+							.skip((page - 1) * pageSize)
+							.take(pageSize)
 							.inlineCount(true);
 
 						if (options.adjustQuery) {
