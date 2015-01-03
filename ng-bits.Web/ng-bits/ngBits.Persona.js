@@ -18,7 +18,7 @@
 				"$http", function ($http) {
 					function verifyAssertion(assertion) {
 						$http.post(loginUrl + assertion).success(function (data) {
-							var authenticated = data === "true";
+							var authenticated = data === true || data === "true";
 
 							if (authenticated) {
 								window.location.reload();
