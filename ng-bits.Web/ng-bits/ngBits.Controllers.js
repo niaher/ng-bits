@@ -82,11 +82,11 @@ angular.module("ngBits.controllers", [])
 				}
 			};
 
-			$scope.delete = function () {
+			$scope["delete"] = function () {
 				var sure = confirm("You are about to delete " + settings.getName(item) + ". This action is irreversable. Are you sure you want to proceed?");
 
 				if (sure) {
-					settings.delete(item._backingStore, function () {
+					settings["delete"](item._backingStore, function () {
 						var eventName = getEventName(settings.eventNamespace, item.entityType.shortName + ":Deleted");
 						settings.publish(eventName, item);
 
@@ -175,7 +175,7 @@ angular.module("ngBits.controllers", [])
 			}
 		}
 
-		return function ($scope, dataContext, options) {
+		return function ($scope, options) {
 			$scope.items = [];
 
 			$scope.pagination = {
@@ -229,25 +229,9 @@ angular.module("ngBits.controllers", [])
 					$scope.pagination.currentPage = page;
 					var pageSize = parseInt($scope.query.pageSize, 10);
 
-					if ($scope.query.search.length && options.search) {
-						options.search($scope.query.search, page, pageSize, function (data) {
-							render(data.results, data.inlineCount, page);
-						});
-					} else {
-						var query = dataContext.query(options.entitySet)
-							.orderBy(options.orderBy)
-							.skip((page - 1) * pageSize)
-							.take(pageSize)
-							.inlineCount(true);
-
-						if (options.adjustQuery) {
-							query = options.adjustQuery(query);
-						}
-
-						query.execute().then(function (data) {
-							render(data.results, data.inlineCount, page);
-						});
-					}
+					options.read($scope.query.search, page, pageSize).then(function (data) {
+						render(data.results, data.inlineCount, page);
+					});
 				}
 			};
 
