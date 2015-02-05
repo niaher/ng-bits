@@ -33,7 +33,7 @@ angular.module("ngBits.breeze", ["breeze.angular"])
 				var result = {};
 				for (var name in obj) {
 					var propertyValue = obj[name];
-					if (obj.hasOwnProperty(name) && typeof (propertyValue) != "object") {
+					if (obj.hasOwnProperty(name) && (typeof (propertyValue) != "object" || angular.isDate(propertyValue))) {
 						result[name] = propertyValue;
 					}
 				}
