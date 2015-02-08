@@ -28,19 +28,28 @@ angular.module("ngBits.breeze", ["breeze.angular"])
 						readyDeferred.reject(error);
 					});
 			}
-			
+
 			context.prototype.getPrimitives = function (obj) {
 				var result = {};
 				for (var name in obj) {
 					var propertyValue = obj[name];
-					if (obj.hasOwnProperty(name) && (typeof (propertyValue) != "object" || angular.isDate(propertyValue))) {
-						result[name] = propertyValue;
+
+					if (propertyValue && propertyValue.complexAspect) {
+						result[name] = context.prototype.getPrimitives(propertyValue._backingStore);
+						continue;
+					}
+
+					if (obj.hasOwnProperty(name)) {
+						if (typeof (propertyValue) != "object" ||
+							angular.isDate(propertyValue)) {
+							result[name] = propertyValue;
+						}
 					}
 				}
 
 				return result;
 			};
-				
+
 			context.prototype.addUnmappedProperty = function (entityType, propertyName) {
 				this.manager.metadataStore.getEntityType(entityType).addProperty(new breeze.DataProperty({
 					name: propertyName,
