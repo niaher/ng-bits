@@ -77,7 +77,7 @@ angular.module("ngBits.breeze.directives", ["ngBits.breeze"])
 					var path = parsePath(modelPath);
 
 					var entity = $scope.$eval(path.entityPath);
-					var entityAspect = entity.entityAspect;
+					var entityAspect = entity.entityAspect || entity.complexAspect.getEntityAspect();
 					var errors = [];
 
 					$scope.$watch(function() {
