@@ -159,7 +159,9 @@ angular.module("ngBits.controllers", [])
 						return $location.search()[key];
 					},
 					set: function (value) {
-						return $location.search(value);
+						var current = $location.search();
+						var newValue = angular.extend(current, value);
+						return $location.search(newValue);
 					},
 				};
 			} else {
