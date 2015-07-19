@@ -32,7 +32,7 @@
 					}
 
 					function signoutUser() {
-						$http.get(logoutUrl).success(function () {
+						$http.post(logoutUrl).success(function () {
 							window.location.reload();
 						}).error(function () {
 							alert("Logout error! The page will refresh.");
