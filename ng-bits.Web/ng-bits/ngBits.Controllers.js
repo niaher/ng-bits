@@ -38,7 +38,7 @@ angular.module("ngBits.controllers", [])
 			return angular.extend({
 				eventNamespace: "",
 				exitUrl: "/",
-				getQuery: function () {
+				getQuery: function (dataContext) {
 					return dataContext.query(item.entityType.defaultResourceName).where("Id", "==", item.Id);
 				},
 				getName: function (i) {
@@ -71,7 +71,7 @@ angular.module("ngBits.controllers", [])
 				} else {
 					dataContext.manager.detachEntity(item);
 
-					var query = settings.getQuery();
+					var query = settings.getQuery(dataContext);
 
 					query.execute().then(function (data) {
 						$scope.$evalAsync(function () {
