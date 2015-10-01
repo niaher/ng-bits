@@ -1,7 +1,7 @@
 // Uses ngProgress (https://github.com/VictorBjelkholm/ngProgress)
 // to show loading indicator for each ajax/full-postback request.
 
-angular.module("ngBits.progress", [])
+angular.module("ngBits.progress", ["ngProgress"])
 	.config(["$httpProvider", function ($httpProvider) {$httpProvider.interceptors.push(["$injector", function ($injector) {
 		var completeProgress, getNgProgress, ngProgress, working;
 		working = false;
